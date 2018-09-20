@@ -2,7 +2,7 @@
 (function () {
     temp = {};
     
-    jOld = function (id) {
+    jCore = function (id) {
         this.about = {
             version: "1.1 rev 0",
             company: "jaservTech"
@@ -82,16 +82,14 @@
             varAjax.onreadystatechange = function (){
                 if((varAjax.readyState == 4)&&(varAjax.status == 200)){
                     if(varAjax.responseText[0] == '#'){
-                        var tempDataLocation = varAjax.responseText.split("'");
-
-                        window.location = tempDataLocation[1];
+                        location.reload();
                         return;
                     }
                     a.sucOk(varAjax.responseText);
                 }else if(varAjax.readyState == 4 && varAjax.status > 400 && varAjax.status != 404){
 					
 					//setTimeout(j('ajax').setAjax(tempA),2000);
-					jOld('ajax').setAjax(tempA);
+					//jCore('ajax').setAjax(tempA);
 				}else{
 					if(a.sucEr)
 					a.sucEr(varAjax.readyState,varAjax.status);
@@ -99,7 +97,8 @@
 				
             }
             if((a.methode == "POST") || (a.methode == "post")){
-                varAjax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                if(a.type)
+                    varAjax.setRequestHeader("Content-type",  "application/x-www-form-urlencoded");
                 if(a.content){
                     varAjax.send(a.content);   
                 }else{
@@ -153,7 +152,7 @@
         };
         if (id) {
             if (window === this) {
-                return new jOld(id);
+                return new jCore(id);
             }
             if (id != undefined) {
                 if (id[0] == '#')
@@ -170,7 +169,6 @@
         }
     }
 })(window)
-var jOldOB = new jOld("test");
 //to add more function please use this syntax
 /*
 j.prototype = {
@@ -181,3 +179,62 @@ to use about
 j().version;
 j().company;
 */
+var jFunc = {
+    convertAsPoint : function(_num_, _dot_){
+        _num_ = jFunc.filterNumberToString(_num_);
+        if(_dot_ === undefined){
+            _dot_ = ".";
+        }
+        let _rest_num_ = "";
+        let _scale_ = 1;
+        for(let _idx_ = _num_.length-1 ; _idx_ >= 0 ; _idx_--){
+            _rest_num_ = _num_[_idx_]+""+_rest_num_;
+            _scale_++;
+            if(_scale_ == 4 && _idx_ > 0){
+                _scale_ = 1;
+                _rest_num_ = _dot_+""+_rest_num_;
+            }
+        }
+        return _rest_num_;
+    },
+    filterNumberToString : function(_num_){
+        _num_ = parseFloat(_num_);
+        _num_ = _num_.toFixed(0);
+        return _num_;
+    },
+    setCookie : function(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    },
+    getCookie : function(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    },
+    initCookie : function(cname, exdays) {
+        cvalue = jFunc.getCookie(cname);
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    },
+    checkCookie : function(index) {
+    var user = jFunc.getCookie(index);
+        if (user != "") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+};
